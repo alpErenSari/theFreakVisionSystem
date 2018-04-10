@@ -1,44 +1,51 @@
-import math
+import numpy as np
+import cv2
+from math import asin, atan2
 
 class calculateDist:
 
     def __init__(self):
-        pass
-
-    def distNAngle(self, object, u1, v1, u2, v2):
-
         # camera parameters in mm calibrated for Raspberry Pi camera
         # average reprojection error is 0.119
-        fx = 656.51
-        fy = 651.16
-        # fx = 5.0*656.51/3.0
-        # fy = 5.0*651.16/3.0
-        cx = 292.18
-        cy = 234.45
-        # pixel coordinates
-        # the coordinate calculations
+        # defining the camera matrix and distortion coefficients
+        self.cameraMatrix = np.array([[628.60, 0, 325.24],
+            [0, 623.32, 237.67], [0, 0, 1.0]]) # defining the camera matrix in mm
+        self.distCoeffs = np.array([0.11909, -0.55747, 0.0, 0.0, 0.4596])
+
+    def distNAngle(self, object, imagePoints):
+
+        imagePoints = np.float32(imagePoints)
+
         if (object is "tunnel"):
-            y = 30.0 # tunnel
+            objectPoints = np.array([[-120 ,0 ,0],
+                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
+                dtype = np.float32) # define 3D object points
         elif (object is "wall"):
-            y = 20.0 # wall
+                objectPoints = np.array([[-120 ,0 ,0],
+                    [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
+                        dtype = np.float32) # define 3D object points
+        elif (object is "bar"):
+            objectPoints = np.array([[-120 ,0 ,0],
+                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
+                    dtype = np.float32) # define 3D object points
         else:
-            y = 25.0
+            objectPoints = np.array([[-120 ,0 ,0],
+                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
+                    dtype = np.float32) # define 3D object points
 
-        #v2 = v2 + 29.0 # due to tilt of camera, correction
-        z1 = (fy*y)/(v1-cy)
-        x1 = ((u1-cx)*z1)/fx
+        _, rvec, tvec = cv2.solvePnP(objectPoints,
+        imagePoints, self.cameraMatrix, self.distCoeffs, False,cv2.SOLVEPNP_P3P)
+        Rt,_ = cv2.Rodrigues(rvec)
+        R = Rt.transpose()
+        pos = -R * tvec
 
-        z2 = (fy*y)/(v2-cy)
-        x2 = ((u2-cx)*z2)/fx
+        roll = atan2(-R[2][1], R[2][2])
+        pitch = asin(R[2][0])
+        yaw = atan2(-R[1][0], R[0][0])
 
-        x = (x1 + x2)/2.0
-        z = (z1 + z2)/2.0
+        dist = np.linalg.norm(tvec)
+        rollDegree = 180*roll/3.1415926 # coverting the roll into degree from radian
 
+        print("The resulting distance and angle are (%f,%f)"%(dist, rollDegree))
 
-        print("The resulting coordinates are (%f,%f) and (%f,%f)"%(x1,z1,x2,z2))
-        dist = math.sqrt(x**2.0 + z**2.0)
-        diff_x = x2 - x1
-        diff_z = z2 - z1
-        angle = 180*math.atan(diff_z/diff_x)/3.1415926
-        print("The difference is %f"%diff_x)
-        return dist/10.0, angle
+        return dist/10.0, rollDegree
