@@ -11,14 +11,16 @@ class Bar2Tunnel:
         self.cd = ColorSpecDet()
         self.RTD = RedTunnelDetected()
         self.sd = ShapeDetector()
+        self.pose = calculateDist()
 
     def Bar2TunnelMain(self, start_flag, bgr_image):
         if start_flag:
             PrimaryStates = ["NothingFound", "TunnelDetected"]
             image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-
-            fd_obj, objects_, resImg, x_color, y_color, w_color, h_color, x_color1, y_color1 = self.cd.ColorDet(image.copy(), "red")
-
+            fd_obj, objects_, resImg, imagePoints, w_color, h_color = self.cd.ColorDet(image.copy(), "red")
+            # taking the upper left and right corners of the object
+            x_color, y_color = imagePoints[1][0], imagePoints[1][1]
+            x_color1, y_color1 = imagePoints[2][0], imagePoints[2][1]
             stop_flag = 0
             if fd_obj:
                 ctr = np.array(objects_).reshape((-1, 1, 2)).astype(np.int32)
@@ -48,7 +50,7 @@ class Bar2Tunnel:
                 half_ = self.RTD.RedTunnelDetected(w_color, h_color)
                 if half_ == 1:
 
-                    if ((x_color + w_color) - 640) <= 10:
+                    if ((x_color < 20) or (x_color1 -640 > 20) ) :
                         # right is not seen
                         i1 = "y"
                         i2 = "x"
@@ -62,9 +64,8 @@ class Bar2Tunnel:
                 elif half_ == 0:
                     print("Tunnel is detected, "
                           "Navigation is Complete")
-                    pose = calculateDist()
-                    print("The points are (%f,%f) and (%f,%f)"%(x_color, y_color, x_color1, y_color1))
-                    dist_, angle = pose.distNAngle("tunnel",x_color, y_color, x_color1, y_color1)
+                    #print("The points are (%f,%f) and (%f,%f)"%(x_color, y_color, x_color1, y_color1))
+                    dist_, angle = self.pose.distNAngle("tunnel", imagePoints)
                     print("The distance is %f and the angle is %f" % (dist_, angle))
                     cv2.namedWindow("Result", 1)
                     cv2.imshow("Result", resImg)

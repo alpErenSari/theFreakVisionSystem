@@ -17,6 +17,7 @@ class Bar2Wall:
         self.GWD = GreenWallDetected()
         self.Navigation = ard_i2c()
         self.sd = ShapeDetector()
+        self.pose = calculateDist()
     def Bar2WallMain(self, start_flag, bgr_image):
 
 
@@ -24,7 +25,10 @@ class Bar2Wall:
                 PrimaryStates = ["NothingFound", "GreenWallDetected"]
                 stop_flag = 0
                 image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-                fd_obj, objects_, resImg, x_color, y_color, w_color, h_color, x_color1, y_color1 = self.cd.ColorDet(image, "green")
+                fd_obj, objects_, resImg, imagePoints, w_color, h_color = self.cd.ColorDet(image, "green")
+                # taking the upper left and right corners of the object
+                x_color, y_color = imagePoints[1][0], imagePoints[1][1]
+                x_color1, y_color1 = imagePoints[2][0], imagePoints[2][1]
                 if fd_obj:
                     ctr = np.array(objects_).reshape((-1, 1, 2)).astype(np.int32)
                     rgb_image = image
@@ -71,9 +75,9 @@ class Bar2Wall:
                     elif half_ == 0:
                         print("Wall is detected, "
                               "Navigation is Complete")
-                        print("The points are (%f,%f) and (%f,%f)"%(x_color, y_color, x_color1, y_color1))
-                        pose = calculateDist()
-                        dist_, angle = pose.distNAngle("wall" ,x_color, y_color, x_color1, y_color1)
+                        #print("The points are (%f,%f) and (%f,%f)"%(x_color, y_color, x_color1, y_color1))
+                        # calculating the pose of the object
+                        dist_, angle = self.pose.distNAngle("wall" , imagePoints)
                         print("The distance is %f and the angle is %f"%(dist_,angle))
                         cv2.namedWindow("Result", 1)
                         cv2.imshow("Result", resImg)

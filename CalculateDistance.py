@@ -17,21 +17,17 @@ class calculateDist:
         imagePoints = np.float32(imagePoints)
 
         if (object is "tunnel"):
-            objectPoints = np.array([[-120 ,0 ,0],
-                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
-                dtype = np.float32) # define 3D object points
+            objectPoints = np.array([[-122.5 ,0 ,0],
+            [-122.5 ,-150 ,0],[122.5 ,-150 ,0],[122.5 ,0 ,0]],
+            dtype = np.float32) # define 3D object points for tunnel
         elif (object is "wall"):
                 objectPoints = np.array([[-120 ,0 ,0],
-                    [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
-                        dtype = np.float32) # define 3D object points
-        elif (object is "bar"):
-            objectPoints = np.array([[-120 ,0 ,0],
                 [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
-                    dtype = np.float32) # define 3D object points
+                dtype = np.float32) # define 3D object points for wall
         else:
-            objectPoints = np.array([[-120 ,0 ,0],
-                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
-                    dtype = np.float32) # define 3D object points
+            objectPoints = np.array([[-22.5 ,0 ,0],
+            [-22.5 ,-121 ,0],[22.5 ,-121 ,0],[22.5 ,0 ,0]],
+            dtype = np.float32) # define 3D object points for bar
 
         _, rvec, tvec = cv2.solvePnP(objectPoints,
         imagePoints, self.cameraMatrix, self.distCoeffs, False,cv2.SOLVEPNP_P3P)

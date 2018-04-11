@@ -10,13 +10,17 @@ class Wall2Bar:
         self.cd = ColorSpecDet()
         self.Navigation = ard_i2c()
         self.sd = ShapeDetector()
+        self.pose = calculateDist()
 
     def Wall2BarMain(self, start_flag, bgr_image):
 
         if start_flag:
             PrimaryStates = ["NothingFound", "BarDetected"]
             image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-            fd_obj, objects_, resImg, x_color, y_color, w_color, h_color, x_color1, y_color1 = self.cd.ColorDet(image, "blue")
+            fd_obj, objects_, resImg, imagePoints, w_color, h_color = self.cd.ColorDet(image, "blue")
+            # taking the upper left and right corners of the object
+            x_color, y_color = imagePoints[1][0], imagePoints[1][1]
+            x_color1, y_color1 = imagePoints[2][0], imagePoints[2][1]
             stop_flag = 0
             cv2.namedWindow("Result", 1)
             cv2.imshow("Result", resImg)
@@ -47,8 +51,8 @@ class Wall2Bar:
                 return stop_flag
             else:
                 bar_distL = x_color
-                pose = calculateDist()
-                dist_, angle = pose.distNAngle(x_color, y_color, x_color1, y_color1)
+                # calculating the pose of the object
+                dist_, angle = self.pose.distNAngle("bar" ,imagePoints)
                 print("The distance is %f and the angle is %f" % (dist_, angle))
                 if (x_color < 10) and (y_color < 10) and abs(x_color1 - 640) < 10 and abs(y_color1 - 0) < 10:
                     stop_flag = 1
