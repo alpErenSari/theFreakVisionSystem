@@ -9,9 +9,9 @@ from shape_detector import ShapeDetector
 class GreenWallDetected:
     def __init__(self):
         pass
-    def GreenWallDetected(self, w_color, h_color):
+    def GreenWallDetected(self, x_color, x_color1):
 
-        if (w_color/ h_color) <= 1.2:  # check the ratio
+        if (x_color < 10 or (640 - x_color1) < 10):  # check the ratio
             half_ = 1
         else:
             half_ = 0

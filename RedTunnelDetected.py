@@ -9,7 +9,7 @@ class RedTunnelDetected:
     def __init__(self):
         pass
     def RedTunnelDetected(self, w_color, h_color):
-        if (w_color / h_color) <= 1.7:
+        if (w_color / h_color) <= 2.0:
             half_ = 1
         else:
             half_ = 0

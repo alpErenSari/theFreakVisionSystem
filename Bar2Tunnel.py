@@ -37,17 +37,18 @@ class Bar2Tunnel:
 
             if initial_state == PrimaryStates[0]:
                 # Navigation.writeArduino([], "s1*")
-                return (stop_flag)
+                return stop_flag, resImg
 
             else:
                 nfd = 1
             if nfd == 0:
                 # Navigation.writeArduino([], "s1*")
                 print("Tunnel Not Found")
-                return(stop_flag)
+                return stop_flag, resImg
 
             else:
-                half_ = self.RTD.RedTunnelDetected(w_color, h_color)
+                #half_ = self.RTD.RedTunnelDetected(w_color, h_color)
+                half_ = 0
                 if half_ == 1:
 
                     if ((x_color < 20) or (x_color1 -640 > 20) ) :
@@ -59,7 +60,7 @@ class Bar2Tunnel:
                         i2 = "y"
                     # Navigation.writeArduino([], "t00000" + i1 + i2)
                     print("Half of the tunnel is detected, Turning Left is needed")
-                    return (stop_flag)
+                    return stop_flag, resImg
 
                 elif half_ == 0:
                     print("Tunnel is detected, "
@@ -67,10 +68,10 @@ class Bar2Tunnel:
                     #print("The points are (%f,%f) and (%f,%f)"%(x_color, y_color, x_color1, y_color1))
                     dist_, angle = self.pose.distNAngle("tunnel", imagePoints)
                     print("The distance is %f and the angle is %f" % (dist_, angle))
-                    cv2.namedWindow("Result", 1)
-                    cv2.imshow("Result", resImg)
-                    cv2.waitKey(0)
-                    cv2.destroyAllWindows()
+##                    cv2.namedWindow("Result", 1)
+##                    cv2.imshow("Result", resImg)
+##                    cv2.waitKey(0)
+##                    cv2.destroyAllWindows()
                     if angle < 0:
                         s = "-"
                     elif angle > 0:
@@ -80,15 +81,15 @@ class Bar2Tunnel:
                     if (x_color < 10) and (y_color < 10) and abs(x_color1 - 640) < 10 and abs(y_color1 - 0) < 10:
                         state_ = "Passing Tunnel"
                         stop_flag = 1
-                        return stop_flag
+                        return stop_flag, resImg
                     # Navigation.writeArduino([], "t" + s + np.str(angle) + np.str(dist_ / 10) + "yy*")
-                    return stop_flag
+                    return stop_flag, resImg
         else:
-            return 1
+            return 1, resImg
 
-bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/bar2Tunnel-50cm/0009.png')
-image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-rgb_image = image
-x = Bar2Tunnel()
-retval = x.Bar2TunnelMain(1, bgr_image)
-print(retval)
+##bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/bar2Tunnel-50cm/0009.png')
+##image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
+##rgb_image = image
+##x = Bar2Tunnel()
+##retval = x.Bar2TunnelMain(1, bgr_image)
+##print(retval)

@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from math import asin, atan2
+import math 
 
 class calculateDist:
 
@@ -21,27 +21,30 @@ class calculateDist:
             [-122.5 ,-150 ,0],[122.5 ,-150 ,0],[122.5 ,0 ,0]],
             dtype = np.float32) # define 3D object points for tunnel
         elif (object is "wall"):
-                objectPoints = np.array([[-120 ,0 ,0],
-                [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
-                dtype = np.float32) # define 3D object points for wall
+            objectPoints = np.array([[-120 ,0 ,0],
+            [-120 ,-110 ,0],[120 ,-110 ,0],[120 ,0 ,0]],
+            dtype = np.float32) # define 3D object points for wall
         else:
             objectPoints = np.array([[-22.5 ,0 ,0],
             [-22.5 ,-121 ,0],[22.5 ,-121 ,0],[22.5 ,0 ,0]],
             dtype = np.float32) # define 3D object points for bar
 
         _, rvec, tvec = cv2.solvePnP(objectPoints,
-        imagePoints, self.cameraMatrix, self.distCoeffs, False,cv2.SOLVEPNP_P3P)
+        imagePoints, self.cameraMatrix, self.distCoeffs)
         Rt,_ = cv2.Rodrigues(rvec)
         R = Rt.transpose()
         pos = -R * tvec
-
-        roll = atan2(-R[2][1], R[2][2])
-        pitch = asin(R[2][0])
-        yaw = atan2(-R[1][0], R[0][0])
+        
+        sy = math.sqrt(Rt[2,1]*Rt[2,1] + Rt[2,2]*Rt[2,2])
+        singular = sy < 1e-6
+        
+        roll = math.atan2(-R[2][1], R[2][2])
+        pitch = math.asin(R[2][0])
+        yaw = math.atan2(-R[1][0], R[0][0])
 
         dist = np.linalg.norm(tvec)
         rollDegree = 180*roll/3.1415926 # coverting the roll into degree from radian
 
-        print("The resulting distance and angle are (%f,%f)"%(dist, rollDegree))
+        #print("The resulting distance and angle are (%f,%f)"%(dist, roll))
 
         return dist/10.0, rollDegree

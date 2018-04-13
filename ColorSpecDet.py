@@ -20,38 +20,15 @@ class ColorSpecDet:
         equalized_ = cv2.merge(planes_)
 
         blurred = cv2.GaussianBlur(equalized_, (11, 11), 0)
-        # gray = cv2.cvtColor(blurred, cv2.COLOR_RGB2GRAY)
-        # edged = cv2.Canny(gray, 10, 250)
-        #
-        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        # closed = cv2.morphologyEx(edged, cv2.MORPH_CLOSE, kernel)
-        # ret, bw = cv2.threshold(closed, 50, 1, cv2.THRESH_BINARY_INV)
-        # # blurred = cv2.bitwise_and(blurred, blurred, edges_inv)
-        # edge_power = cv2.split(blurred)
-        # # Color space conversion
-        # edge_power[0] = bw * blurred[:,:,0]
-        # edge_power[1] = bw * blurred[:,:,1]
-        # edge_power[2] = bw * blurred[:,:,2]
-        # edge_power = cv2.merge(edge_power)
-
 
         hsv = cv2.cvtColor(blurred, cv2.COLOR_RGB2HSV)
         yuv = cv2.cvtColor(blurred, cv2.COLOR_RGB2YUV)
-        lab = cv2.cvtColor(blurred, cv2.COLOR_RGB2LAB)
-        ycc = cv2.cvtColor(blurred, cv2.COLOR_RGB2YCR_CB)
-        hls = cv2.cvtColor(blurred, cv2.COLOR_RGB2HLS_FULL)
-        # luv = cv2.cvtColor(edge_power, cv2.COLOR_RGB2LUV)
-        frame = rgb_image
 
         objects_ = []
         size_cnt = []
 
         # Red thresholds
         if key == 'red':
-
-
-            # mean_r = np.mean(rgb_image[:, :, 0])
-            # mask_r = cv2.inRange(rgb_image[:, :, 0], mean_r, 255)
             # searching for the tunnel's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
@@ -60,48 +37,11 @@ class ColorSpecDet:
             mask_yuv = np.zeros(yuv[:,:,0].shape)
             mask_yuv[(yuv[:,:,1]>85) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>150) & (yuv[:,:,2]<240)] = 255
 
-            # mean_lab = np.mean(lab[:, :, 1])
-            # mask_lab = cv2.inRange(lab[:, :, 1], mean_lab, 255)
-            #
-            # mean_hls1= np.mean(hls[:, :, 0])
-            # mask_hls1 = cv2.inRange(hls[:, :, 0], mean_hls1, 255)
-            #
-            # mean_hls2= np.mean(hls[:, :, 2])
-            # mask_hls2 = cv2.inRange(hls[:, :, 2], mean_hls2, 255)
-
-
-            # mean_ycc = np.mean(ycc[:, :, 1])
-            # mask_ycc = cv2.inRange(ycc[:, :, 1], mean_ycc, 255)
-
-
-            # mask_merged = mask_hsv + mask_hls1 + mask_hls2 + mask_ycc
-            # mask = mask_r &  mask_lab & mask_merged
-
             mask = np.zeros(hsv[:,:,0].shape)
             mask[(mask_hsv>128) & (mask_yuv>128)] = 255 # combining all the masks to create a reliable mask
 
         # Blue thresholds
         elif key == 'blue':
-
-            # mean_b = np.mean(rgb_image[:, :, 2])
-            # mask_b = cv2.inRange(rgb_image[:, :, 2], mean_b, 255)
-            #
-            # mean_lab = np.mean([lab[:, :, 2]])
-            # mask_lab = cv2.inRange(lab[:, :, 2], 0, mean_lab)
-            #
-            # mean_ycc = np.mean([ycc[:, :, 2]])
-            # mask_ycc = cv2.inRange(ycc[:, :, 2], mean_ycc, 255)
-            #
-            # mean_hsv1 = np.mean(hsv[:,:,0])
-            # mask_hsv1 = cv2.inRange(hsv[:, :, 0], mean_hsv1, 255)
-            #
-            #
-            # mean_hsv2 = np.mean(hsv[:,:,1])
-            # mask_hsv2 = cv2.inRange(hsv[:, :, 1], mean_hsv2, 255)
-            #
-            # mask_hsv = mask_hsv1 + mask_hsv2
-            # mask = mask_hsv & mask_lab & mask_ycc + mask_b
-
             # searching for the bar's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
@@ -115,33 +55,13 @@ class ColorSpecDet:
 
         # Green thresholds
         elif key == 'green':
-            # mean_g = np.mean(rgb_image[:, :, 1])
-            # mask_g = cv2.inRange(rgb_image[:, :, 1], 0, mean_g)
-            #
-            # mean_lab = np.mean(lab[:, :, 1])
-            # mask_lab = cv2.inRange(lab[:, :, 1], 0, mean_lab)
-            #
-            # mean_lab2 = np.mean(lab[:, :, 2])
-            # mask_lab2 = cv2.inRange(lab[:, :, 2], mean_lab2, 255)
-            #
-            # mean_ycc0 = np.mean(ycc[:, :, 0])
-            # mask_ycc0 = cv2.inRange(ycc[:, :, 0], 0, mean_ycc0)
-            # mean_ycc1= np.mean(ycc[:, :, 1])
-            # mask_ycc1 = cv2.inRange(ycc[:, :, 1], 0, mean_ycc1)
-            #
-            # mean_hls = np.mean(hls[:, :, 2])
-            # mask_hls = cv2.inRange(hls[:, :, 2], mean_hls, 255)
-            #
-            # maskm = mask_ycc0 + mask_ycc1
-            # mask = mask_g & mask_lab & mask_lab2 & maskm & mask_hls
-
             # searching for the wall's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
-            mask_hsv[(hsv[:,:,1]>110) & (hsv[:,:,0]<80) & (hsv[:,:,0]>50) ] = 255
+            mask_hsv[(hsv[:,:,1]>90) & (hsv[:,:,0]<110) & (hsv[:,:,0]>40) ] = 255
 
             mask_yuv = np.zeros(yuv[:,:,0].shape)
-            mask_yuv[(yuv[:,:,1]>95) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>50) & (yuv[:,:,2]<120)] = 255
+            mask_yuv[(yuv[:,:,1]>30) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>40) & (yuv[:,:,2]<128)] = 255
 
             mask = np.zeros(yuv[:,:,0].shape)
             mask[(mask_hsv>128) & (mask_yuv>128)] = 255 # combining all the masks to create a reliable mask
@@ -167,7 +87,12 @@ class ColorSpecDet:
                 c = max(cnts, key=cv2.contourArea) # taking the largest contour
                 ((x, y), radius) = cv2.minEnclosingCircle(c)
                 x, y, w, h = cv2.boundingRect(c)
-                approxCurve = cv2.approxPolyDP(c, 10.0, True )
+                epsilon = 0.1*cv2.arcLength(c, True)
+                approxCurve = cv2.approxPolyDP(c, epsilon, True )
+                hull = cv2.convexHull(approxCurve)
+                hull = np.int32(hull)
+##                print("The hull is ", hull)
+##                print("The hull is ", hull[0][0][0])
                 temp_image = rgb_image.copy()
                 temp_image = cv2.cvtColor(temp_image, cv2.COLOR_RGB2BGR)
 
@@ -181,11 +106,13 @@ class ColorSpecDet:
                     rect = cv2.minAreaRect(c) # finds a rotated rectangle which covers the contour
                     box = cv2.boxPoints(rect) # taking the rotated rectangle's corners
                     box = np.int32(box) # converting corners into int32
-                    print("The boxes are", box)
+                    #print("The boxes are", box)
 
                     #cv2.rectangle(temp_image, box[1], box[3], colors[key], 2) # drawing the rectangle
-                    #cv2.polylines(temp_image, c, True, (0,0,0), 3, cv2.FILLED)
-                    cv2.drawContours(temp_image, [c], 0, colors[key], 3)
+                    cv2.polylines(temp_image, [hull], True, colors[key], 2, cv2.FILLED)
+                    #cv2.drawContours(temp_image, [c], 0, colors[key], 3)
+                    
+                  
 
                     objects_ = np.append(objects_, c) # appending the largest contour into objects_
                     size_cnt = np.append(size_cnt, c.size) # appending the size of the largest contour
@@ -201,14 +128,14 @@ class ColorSpecDet:
                     y0 = temp_points0[1] # taking bottom left corner's y
                     h = np.sqrt((x-x0)*(x-x0) + (y-y0)*(y-y0)) # calculating the height of the object
                     fd_ob = 1 # object is found flag
-                    return fd_ob, objects_, temp_image,  x, y, w, h, x1, y1
+                    return fd_ob, objects_, temp_image,  hull, w, h
                 else :
-                    return 0, 0, 0, 0, 0, 0, 0, 0, 0
+                    return 0, 0, 0, temp_image, 0, 0
             else:
-                return 0, 0, 0, 0, 0, 0, 0, 0, 0
+                return 0, 0, 0, temp_image, 0, 0
 
         else:
-            return 0, 0, 0, 0, 0, 0, 0, 0
+            return 0, 0, 0, temp_image, 0, 0
 
 # bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/bar2Tunnel-50cm/0009.png')
 # image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)

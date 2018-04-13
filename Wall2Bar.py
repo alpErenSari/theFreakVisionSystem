@@ -11,7 +11,7 @@ class Wall2Bar:
         self.Navigation = ard_i2c()
         self.sd = ShapeDetector()
         self.pose = calculateDist()
-
+    
     def Wall2BarMain(self, start_flag, bgr_image):
 
         if start_flag:
@@ -22,10 +22,10 @@ class Wall2Bar:
             x_color, y_color = imagePoints[1][0], imagePoints[1][1]
             x_color1, y_color1 = imagePoints[2][0], imagePoints[2][1]
             stop_flag = 0
-            cv2.namedWindow("Result", 1)
-            cv2.imshow("Result", resImg)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+##            cv2.namedWindow("Result", 1)
+##            cv2.imshow("Result", resImg)
+##            cv2.waitKey(0)
+##            cv2.destroyAllWindows()
             if fd_obj:
                 ctr = np.array(objects_).reshape((-1, 1, 2)).astype(np.int32)
                 rgb_image = image
@@ -48,10 +48,9 @@ class Wall2Bar:
             if nfd == 0:
                 print("Bar Not Found")
                 # self.Navigation.writeArduino([], "s0*") # 0 for turning left
-                return stop_flag
+                return stop_flag,
             else:
                 bar_distL = x_color
-                # calculating the pose of the object
                 dist_, angle = self.pose.distNAngle("bar" ,imagePoints)
                 print("The distance is %f and the angle is %f" % (dist_, angle))
                 if (x_color < 10) and (y_color < 10) and abs(x_color1 - 640) < 10 and abs(y_color1 - 0) < 10:
@@ -63,6 +62,6 @@ class Wall2Bar:
             return 1
 # aa = Wall2Bar()
 # aa.Wall2BarMain(1)
-bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/Wall2Bar-30cm/0055.png')
-x = Wall2Bar()
-retval = x.Wall2BarMain(1, bgr_image)
+##bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/Wall2Bar-30cm/0055.png')
+##x = Wall2Bar()
+##retval = x.Wall2BarMain(1, bgr_image)

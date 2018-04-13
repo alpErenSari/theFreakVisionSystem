@@ -12,9 +12,9 @@ from Tunnel2Bar import Tunnel2Bar
 
 # initializing the flags
 StopFlag = 0
-StartB2W = 0
+StartB2W = 1
 StartW2B = 0
-StartB2T = 1
+StartB2T = 0
 StartT2B = 0
 
 
