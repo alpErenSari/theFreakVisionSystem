@@ -8,9 +8,9 @@ class calculateDist:
         # camera parameters in mm calibrated for Raspberry Pi camera
         # average reprojection error is 0.119
         # defining the camera matrix and distortion coefficients
-        self.cameraMatrix = np.array([[375.355, 0, 337.782],
-            [0, 374.175, 226.250], [0, 0, 1.0]]) # defining the camera matrix in mm
-        self.distCoeffs = np.array([-0.2657, 0.1335, 0.0, 0.0, 0.002082])
+        self.cameraMatrix = np.array([[628.60, 0, 325.24],
+            [0, 623.32, 237.67], [0, 0, 1.0]]) # defining the camera matrix in mm
+        self.distCoeffs = np.array([0.11909, -0.55747, 0.0, 0.0, 0.4596])
 
     def distNAngle(self, object, imagePoints):
 

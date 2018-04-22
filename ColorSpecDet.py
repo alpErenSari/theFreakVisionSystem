@@ -7,7 +7,7 @@ from DetectPlatform import DetectPlatform as DetP
 class ColorSpecDet:
 
     def __init__(self):
-        pass
+        self.imagezero = np.zeros((3,2))
 
     def ColorDet(self, rgb_image, key):
 
@@ -23,6 +23,9 @@ class ColorSpecDet:
 
         hsv = cv2.cvtColor(blurred, cv2.COLOR_RGB2HSV)
         yuv = cv2.cvtColor(blurred, cv2.COLOR_RGB2YUV)
+        
+        temp_image = rgb_image.copy()
+        temp_image = cv2.cvtColor(temp_image, cv2.COLOR_RGB2BGR)
 
         objects_ = []
         size_cnt = []
@@ -32,10 +35,10 @@ class ColorSpecDet:
             # searching for the tunnel's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
-            mask_hsv[ (hsv[:,:,0]>167) | (hsv[:,:,0]<7) ] = 255
+            mask_hsv[ (hsv[:,:,0]>167) | (hsv[:,:,0]<12) ] = 255
 
             mask_yuv = np.zeros(yuv[:,:,0].shape)
-            mask_yuv[(yuv[:,:,1]>85) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>150) & (yuv[:,:,2]<240)] = 255
+            mask_yuv[(yuv[:,:,1]>85) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>120) & (yuv[:,:,2]<240)] = 255
 
             mask = np.zeros(hsv[:,:,0].shape)
             mask[(mask_hsv>128) & (mask_yuv>128)] = 255 # combining all the masks to create a reliable mask
@@ -45,10 +48,10 @@ class ColorSpecDet:
             # searching for the bar's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
-            mask_hsv[(hsv[:,:,1]<255) & (hsv[:,:,1]>230) & (hsv[:,:,0]<130) & (hsv[:,:,0]>90) ] = 255
+            mask_hsv[(hsv[:,:,1]<255) & (hsv[:,:,1]>100) & (hsv[:,:,0]<130) & (hsv[:,:,0]>40) ] = 255
 
             mask_yuv = np.zeros(yuv[:,:,0].shape)
-            mask_yuv[(yuv[:,:,1]>128) & (yuv[:,:,1]<210) &  (yuv[:,:,2]>40) & (yuv[:,:,2]<128)] = 255
+            mask_yuv[(yuv[:,:,1]>110) & (yuv[:,:,1]<190) &  (yuv[:,:,2]<128)] = 255
 
             mask = np.zeros(yuv[:,:,0].shape)
             mask[(mask_hsv>128) & (mask_yuv>128)] = 255 # combining all the masks to create a reliable mask
@@ -58,16 +61,17 @@ class ColorSpecDet:
             # searching for the wall's color in hsv and yuv
 
             mask_hsv = np.zeros(hsv[:,:,0].shape)
-            mask_hsv[(hsv[:,:,1]>90) & (hsv[:,:,0]<110) & (hsv[:,:,0]>40) ] = 255
+            mask_hsv[(hsv[:,:,1]>40) & (hsv[:,:,0]<110) & (hsv[:,:,0]>40) ] = 255
 
             mask_yuv = np.zeros(yuv[:,:,0].shape)
-            mask_yuv[(yuv[:,:,1]>30) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>40) & (yuv[:,:,2]<128)] = 255
+            mask_yuv[(yuv[:,:,1]>10) & (yuv[:,:,1]<128) &  (yuv[:,:,2]>10) & (yuv[:,:,2]<128)] = 255
 
             mask = np.zeros(yuv[:,:,0].shape)
             mask[(mask_hsv>128) & (mask_yuv>128)] = 255 # combining all the masks to create a reliable mask
 
+   
         if np.sum(mask) != 0:
-            kernel = np.ones((5,5), np.uint8)
+            kernel = np.ones((2,2), np.uint8)
             # changing into uint8 type for findContours function
             mask = np.uint8(mask)
 
@@ -75,10 +79,10 @@ class ColorSpecDet:
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             # By applying opening and closing we are enhancing the morphology
 
-            # cv2.namedWindow("Mask", 1)
-            # cv2.imshow("Mask", mask)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+            #cv2.namedWindow("Mask", 1)
+            #cv2.imshow("Mask", mask)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
 
             cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
@@ -87,14 +91,13 @@ class ColorSpecDet:
                 c = max(cnts, key=cv2.contourArea) # taking the largest contour
                 ((x, y), radius) = cv2.minEnclosingCircle(c)
                 x, y, w, h = cv2.boundingRect(c)
-                epsilon = 0.1*cv2.arcLength(c, True)
+                epsilon = 0.05*cv2.arcLength(c, True)
                 approxCurve = cv2.approxPolyDP(c, epsilon, True )
                 hull = cv2.convexHull(approxCurve)
                 hull = np.int32(hull)
 ##                print("The hull is ", hull)
 ##                print("The hull is ", hull[0][0][0])
-                temp_image = rgb_image.copy()
-                temp_image = cv2.cvtColor(temp_image, cv2.COLOR_RGB2BGR)
+                
 
                 if w>60 and h>45:
                     #cv2.rectangle(temp_image, (x, y), (x + w, y + h), colors[key], 2)
@@ -112,7 +115,7 @@ class ColorSpecDet:
                     cv2.polylines(temp_image, [hull], True, colors[key], 2, cv2.FILLED)
                     #cv2.drawContours(temp_image, [c], 0, colors[key], 3)
                     
-                  
+                    hull = np.array(hull)
 
                     objects_ = np.append(objects_, c) # appending the largest contour into objects_
                     size_cnt = np.append(size_cnt, c.size) # appending the size of the largest contour
@@ -130,12 +133,12 @@ class ColorSpecDet:
                     fd_ob = 1 # object is found flag
                     return fd_ob, objects_, temp_image,  hull, w, h
                 else :
-                    return 0, 0, 0, temp_image, 0, 0
+                    return 0, 0, temp_image, self.imagezero, 0, 0
             else:
-                return 0, 0, 0, temp_image, 0, 0
+                return 0, 0, temp_image, self.imagezero, 0, 0
 
         else:
-            return 0, 0, 0, temp_image, 0, 0
+            return 0, 0, temp_image, self.imagezero, 0, 0
 
 # bgr_image = cv2.imread('/home/eren/Documents/wheels_horizons/vo/FreakImage/freakData-04-04-2018/bar2Tunnel-50cm/0009.png')
 # image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)

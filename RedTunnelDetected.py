@@ -8,9 +8,10 @@ from shape_detector import ShapeDetector
 class RedTunnelDetected:
     def __init__(self):
         pass
-    def RedTunnelDetected(self, w_color, h_color):
-        if (w_color / h_color) <= 2.0:
+    def RedTunnelDetected(self, x_color, x_color1):
+        if (x_color < 10) or (abs(640 - x_color1) < 10):  # check the ratio
             half_ = 1
+            print("x values are ", x_color, x_color1)
         else:
             half_ = 0
 
