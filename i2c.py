@@ -16,7 +16,7 @@ class ard_i2c:
         for i in data_list:
             self.bus.write_byte(self.address, int(ord(i)))
             self.bus.write_byte(self.address_2, int(ord(i)))
-            time.sleep(.1)
+            time.sleep(1e-4) # make this value small as possible
         return -1
 
 
